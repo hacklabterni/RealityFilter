@@ -25,6 +25,7 @@
     <script src="./js/three.min.js"></script>
     <script src="./js/StereoEffect.js"></script>
     <script src="./js/close-pixelate-canvas.js"></script>
+    <script src="js/adapter.js"></script>
 
     <script>
       var scene,
@@ -73,29 +74,25 @@
         video = document.createElement('video');
         video.setAttribute('autoplay', true);
         
-        var options = {
-          video: {
-            optional: [{facingMode: "environment"}]
-          }
-        };
-
-        navigator.getUserMedia = navigator.getUserMedia ||
-        navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-        if (typeof MediaStreamTrack === 'undefined' && navigator.getUserMedia) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !navigator.mediaDevices.getUserMedia) {
           alert('This browser doesn\'t support this demo :(');
         } else {
-          MediaStreamTrack.getSources(function(sources) {
-            for (var i = 0; i !== sources.length; ++i) {
-              var source = sources[i];
-              if (source.kind === 'video') {
-                if (source.facing && source.facing == "environment") {
-                  options.video.optional.push({'sourceId': source.id});
-                }
+
+          var constraints = {
+            audio: false,
+            video: {
+              facingMode: {
+                ideal: "environment"
               }
             }
-            
-            navigator.getUserMedia(options, streamFound, streamError);
+          };
+
+          navigator.mediaDevices.getUserMedia(constraints)
+          .then(function(stream) {
+            streamFound(stream);
+          })
+          .catch(function(error) {
+            streamError(stream);
           });
         }
 
