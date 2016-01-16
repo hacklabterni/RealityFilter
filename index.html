@@ -96,48 +96,47 @@
           });
         }
 
-        function streamFound(stream) {
-          document.body.appendChild(video);
-          video.src = URL.createObjectURL(stream);
-          video.style.width = '100%';
-          video.style.height = '100%';
-          video.play();
-
-          canvas = document.createElement('canvas');
-          canvas.width = video.clientWidth;
-          canvas.height = video.clientHeight;
-          canvas.width = nextPowerOf2(canvas.width);
-          canvas.height = nextPowerOf2(canvas.height);
-
-          function nextPowerOf2(x) { 
-              return Math.pow(2, Math.ceil(Math.log(x) / Math.log(2))); 
-          }
-
-          context = canvas.getContext('2d');
-          texture = new THREE.Texture(canvas);
-          texture.context = context;
-          
-          // If you do not use powersOf2, or you want to adjust things more, you could use these:
-          //texture.minFilter = THREE.LinearMipMapLinearFilter;
-          //texture.magFilter = THREE.NearestFilter;
-
-          var cameraPlane = new THREE.PlaneGeometry(1920, 1280);
-
-          cameraMesh = new THREE.Mesh(cameraPlane, new THREE.MeshBasicMaterial({
-            color: 0xffffff, opacity: 1, map: texture
-          }));
-          cameraMesh.position.z = -600;
-
-          scene.add(cameraMesh);
-        }
-
-        function streamError(error) {
-          console.log('Stream error: ', error);
-        }
-
         animate();
       }
 
+      function streamFound(stream) {
+        document.body.appendChild(video);
+        video.src = URL.createObjectURL(stream);
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.play();
+
+        canvas = document.createElement('canvas');
+        canvas.width = video.clientWidth;
+        canvas.height = video.clientHeight;
+        canvas.width = nextPowerOf2(canvas.width);
+        canvas.height = nextPowerOf2(canvas.height);
+
+        function nextPowerOf2(x) {
+            return Math.pow(2, Math.ceil(Math.log(x) / Math.log(2)));
+        }
+
+        context = canvas.getContext('2d');
+        texture = new THREE.Texture(canvas);
+        texture.context = context;
+
+        // If you do not use powersOf2, or you want to adjust things more, you could use these:
+        //texture.minFilter = THREE.LinearMipMapLinearFilter;
+        //texture.magFilter = THREE.NearestFilter;
+
+        var cameraPlane = new THREE.PlaneGeometry(1920, 1280);
+
+        cameraMesh = new THREE.Mesh(cameraPlane, new THREE.MeshBasicMaterial({
+          color: 0xffffff, opacity: 1, map: texture
+        }));
+        cameraMesh.position.z = -600;
+
+        scene.add(cameraMesh);
+      }
+
+      function streamError(error) {
+        console.log('Stream error: ', error);
+      }
 
       function animate() {
         if (context) {
