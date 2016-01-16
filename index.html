@@ -14,12 +14,26 @@
         left: 0;
         position: absolute;
         right: 0;
-        top: 0;
+        top: 30px;
         z-index: 100;
+      }
+      .select {
+        line-height: 30px;
+      }
+      video {
+        visibility: hidden;
       }
     </style>
   </head>
   <body>
+    <div class="select">
+      <label for="rotation">Rotate: </label>
+      <select id="rotation">
+        <option value="0">0</option>
+        <option value="180">180</option>
+      </select>
+    </div>
+
     <div id="webglviewer"></div>
 
     <script src="./js/three.min.js"></script>

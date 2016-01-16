@@ -10,6 +10,7 @@ var scene,
     themes = ['blackandwhite', 'sepia', 'arcade', 'inverse'],
     currentTheme = 0,
     lookingAtGround = false;
+    rotationSelect = document.querySelector('select#rotation');
 
 init();
 
@@ -242,3 +243,14 @@ function fullscreen() {
     container.webkitRequestFullscreen();
   }
 }
+
+rotationSelect.oldValue = rotationSelect.value;
+rotationSelect.addEventListener('change', function(evt) {
+  rotation = this.value - this.oldValue;
+
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate(rotation * Math.PI / 180);
+  context.translate(-canvas.width / 2, -canvas.height / 2);
+
+  this.oldValue = this.value;
+});
