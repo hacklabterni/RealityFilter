@@ -14,10 +14,11 @@
         left: 0;
         position: absolute;
         right: 0;
-        top: 30px;
+        top: 60px;
         z-index: 100;
       }
-      .select {
+      .select,
+      .checkboxes {
         line-height: 30px;
       }
       video {
@@ -32,6 +33,13 @@
         <option value="0">0</option>
         <option value="180">180</option>
       </select>
+    </div>
+    <div class="checkboxes">
+      <label for="horizontal_mirror">Horizontal Mirror </label>
+      <input type="checkbox" name="horizontal_mirror" value="H">
+      <span> - </span>
+      <label for="vertical_mirror">Vertical Mirror </label>
+      <input type="checkbox" name="vertical_mirror" value="V">
     </div>
 
     <div id="webglviewer"></div>

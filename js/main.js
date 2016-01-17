@@ -9,8 +9,10 @@ var scene,
     context,
     themes = ['blackandwhite', 'sepia', 'arcade', 'inverse'],
     currentTheme = 0,
-    lookingAtGround = false;
-    rotationSelect = document.querySelector('select#rotation');
+    lookingAtGround = false,
+    rotationSelect = document.querySelector('select#rotation'),
+    horizontalMirror = document.querySelector('input[name="horizontal_mirror"]'),
+    verticalMirror = document.querySelector('input[name="vertical_mirror"]');
 
 init();
 
@@ -88,6 +90,7 @@ function streamFound(stream) {
   }
 
   context = canvas.getContext('2d');
+
   texture = new THREE.Texture(canvas);
   texture.context = context;
 
@@ -244,6 +247,12 @@ function fullscreen() {
   }
 }
 
+function flipContext(scaleH, scaleV) {
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(scaleH, scaleV);
+  context.translate(-canvas.width / 2, -canvas.height / 2);
+}
+
 rotationSelect.oldValue = rotationSelect.value;
 rotationSelect.addEventListener('change', function(evt) {
   rotation = this.value - this.oldValue;
@@ -253,4 +262,12 @@ rotationSelect.addEventListener('change', function(evt) {
   context.translate(-canvas.width / 2, -canvas.height / 2);
 
   this.oldValue = this.value;
+});
+
+horizontalMirror.addEventListener('change', function(evt) {
+  flipContext(-1, 1);
+});
+
+verticalMirror.addEventListener('change', function(evt) {
+  flipContext(1, -1);
 });
