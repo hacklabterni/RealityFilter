@@ -10,9 +10,41 @@ var scene,
     themes = ['blackandwhite', 'sepia', 'arcade', 'inverse'],
     currentTheme = 0,
     lookingAtGround = false,
+    videoSelect = document.querySelector('select#videoSource'),
     rotationSelect = document.querySelector('select#rotation'),
     horizontalMirror = document.querySelector('input[name="horizontal_mirror"]'),
     verticalMirror = document.querySelector('input[name="vertical_mirror"]');
+
+if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+  alert('This browser doesn\'t support this demo :(');
+} else {
+  navigator.mediaDevices.enumerateDevices()
+  .then(deviceFound)
+  .catch(deviceError);
+}
+
+function deviceFound(deviceInfos) {
+  var value = videoSelect.value;
+
+  deviceInfos.forEach(function(deviceInfo, i) {
+    var option = document.createElement('option');
+    option.value = deviceInfo.deviceId;
+    if (deviceInfo.kind === 'videoinput') {
+      option.text = deviceInfo.label || 'camera ' + (videoSelect.length + 1);
+      videoSelect.appendChild(option);
+    }
+  });
+
+  if (Array.prototype.slice.call(videoSelect.childNodes).some(function(n) {
+    return n.value === value;
+  })) {
+    videoSelect.value = value;
+  }
+}
+
+function deviceError(error) {
+  console.log('Device error: ', error);
+}
 
 init();
 
@@ -47,22 +79,34 @@ function init() {
   video = document.createElement('video');
   video.setAttribute('autoplay', true);
   
+  initDevice();
+}
+
+function initDevice () {
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !navigator.mediaDevices.getUserMedia) {
     alert('This browser doesn\'t support this demo :(');
   } else {
 
+    if (window.stream) {
+      window.stream.getTracks().forEach(function(track) {
+        track.stop();
+      });
+    }
+
+    var videoSource = videoSelect.value;
+
     var constraints = {
       audio: false,
       video: {
-        facingMode: {
-          ideal: "environment"
-        }
+        deviceId: videoSource ? {exact: videoSource} : undefined
       }
     };
 
     navigator.mediaDevices.getUserMedia(constraints)
     .then(function(stream) {
+      window.stream = stream;
       streamFound(stream);
+      return navigator.mediaDevices.enumerateDevices();
     })
     .catch(function(error) {
       streamError(stream);
@@ -247,11 +291,9 @@ function fullscreen() {
   }
 }
 
-function flipContext(scaleH, scaleV) {
-  context.translate(canvas.width / 2, canvas.height / 2);
-  context.scale(scaleH, scaleV);
-  context.translate(-canvas.width / 2, -canvas.height / 2);
-}
+videoSelect.addEventListener('change', function(evt) {
+  initDevice();
+});
 
 rotationSelect.oldValue = rotationSelect.value;
 rotationSelect.addEventListener('change', function(evt) {
@@ -264,6 +306,12 @@ rotationSelect.addEventListener('change', function(evt) {
   this.oldValue = this.value;
 });
 
+function flipContext(scaleH, scaleV) {
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(scaleH, scaleV);
+  context.translate(-canvas.width / 2, -canvas.height / 2);
+}
+
 horizontalMirror.addEventListener('change', function(evt) {
   flipContext(-1, 1);
 });
@@ -271,3 +319,19 @@ horizontalMirror.addEventListener('change', function(evt) {
 verticalMirror.addEventListener('change', function(evt) {
   flipContext(1, -1);
 });
+
+function fullscreenChangeHandler(){
+  var fullscreenElement = document.fullscreenElement ||
+                          document.mozFullScreenElement ||
+                          document.webkitFullscreenElement ||
+                          document.msFullscreenElement;
+  if (fullscreenElement) {
+    container.style.top = '0px';
+  } else {
+    container.style.top = '90px';
+  }
+}
+document.addEventListener("fullscreenchange", fullscreenChangeHandler, false);
+document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler, false);
+document.addEventListener("mozfullscreenchange", fullscreenChangeHandler, false);
+document.addEventListener("MSFullscreenChange", fullscreenChangeHandler, false);
